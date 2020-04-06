@@ -1,0 +1,7 @@
+#GAP
+
+# Tal Rastopchin and Gabby Masini
+# March 8, 2020
+
+# load Miyamoto and Hanaki's elementary functions for association schemes
+Read("./reports/association_scheme.gap");
