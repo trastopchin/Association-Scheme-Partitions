@@ -2,13 +2,13 @@
 # March 8, 2020
 
 # load Miyamoto and Hanaki's elementary functions for association schemes
-Read("research_project/association_scheme.gap");
+Read("./reports/association_scheme.gap");
 
 # load Miyamoto and Hanaki's classified association schemes of order 05-07
 # as05 is a list of the schemes of order 5, and so on
-Read("research_project/schemes_order05.gap");
-Read("research_project/schemes_order06.gap");
-Read("research_project/schemes_order07.gap");
+Read("./reports/schemes_order05.gap");
+Read("./reports/schemes_order06.gap");
+Read("./reports/schemes_order07.gap");
 
 # prints with line at end
 Println := function(object)
@@ -26,7 +26,7 @@ PrintMatrix := function(R)
 end;
 
 # the relation matrix of the scheme example we drew
-R =
+R :=
 [[0, 1, 1, 1, 3, 2],
  [1, 0, 3, 2, 1, 1],
  [1, 2, 0, 3, 1, 1],
