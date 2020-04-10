@@ -15,6 +15,9 @@ Read("./classified_schemes/schemes_order08.gap");
 Read("./classified_schemes/schemes_order09.gap");
 Read("./classified_schemes/schemes_order10.gap");
 
+# we need thispackage
+LoadPackage("datastructures");
+
 # prints a new line
 Newline := function()
 	Print("\n");
@@ -79,50 +82,78 @@ M:=[[0, 1, 2, 2, 1],
 	  [2, 1, 0, 1, 2],
 	  [2, 2, 1, 0, 1],
 	  [1, 2, 2, 1, 0]];
+# a scheme of order 6 that comes from S_3
+S_3 := [ [ 0, 1, 1, 2, 2, 1 ],
+         [ 1, 0, 2, 1, 1, 2 ],
+				 [ 1, 2, 0, 1, 1, 2 ],
+				 [ 2, 1, 1, 0, 2, 1 ],
+				 [ 2, 1, 1, 2, 0, 1 ],
+				 [ 1, 2, 2, 1, 1, 0 ] ];
 
-ComputeGoodPartitions := function(R)
-	local partitionBases, partitionBasis, V, basis, isGoodPartition, j, sigma, result, coefficients;
-	# enumerate potential partition bases
-	partitionBases := EnumeratePartitionBases(OrderOfScheme(R));
+# Creates a basis for the module given a partition.
+# 	partition, the set of partition vectors of the all
+#			one vector of length n.
+VectorSpaceBasisFromPartition := function(partition)
+	local V, basis;
+	V := VectorSpace(Rationals, partition);
+	basis := Basis(V, partition);
+	return basis;
+end;
 
-	# for each potential partition basis
-	for partitionBasis in partitionBases do
+# Computes the coefficients of a vector sigma * j
+# in terms of the basis.
+# 	sigma, an nxn adjacency matrix of a scheme R
+#		j, a length n vector of the partition basis
+#		basis, the partition basis of our vector space (module?)
+ComputeCoefficients := function(sigma, j, basis)
+	local result;
+	result := sigma * j;
+	return Coefficients(basis, result);
+end;
 
-		# create the vector space over the rationals with our partition basis
-		V:= VectorSpace(Rationals, partitionBasis);
-		basis := Basis(V, partitionBasis);
+# Determines whether or not a specific partition is
+# a good partition of the given scheme. Does this by
+# performing an exhaustive search.
+# 	R, the relational mattrx of our given scheme.
+# 	partition, the partition we are inspecting.
+IsGoodPartition := function(R, partition)
+	local basis, j, sigma, coefficients;
+	# create the vector space over the rationals with our partition basis
+	basis := VectorSpaceBasisFromPartition(partition);
+	for j in partition do
+		for sigma in AdjacencyMatrices(R) do
+			# we compute the coefficients of sigma * j in terms of basis
+			coefficients := ComputeCoefficients(sigma, j, basis);
 
-		# check if all numbers b_pi^l exist
-		isGoodPartition := true;
-		for j in partitionBasis do
-			for sigma in AdjacencyMatrices(R) do
-				result := sigma * j; # sigma_p * j_i
-
-				# figure out what the are the b_pi^l
-				coefficients := Coefficients(basis, result);
-
-				if not (coefficients = fail) then
-					# coefficients are the b_pi^l
-				else
-					isGoodPartition := false;
-					break; # break inner loop
-				fi;
-			od;
-
-			# break outer loop
-			if not(isGoodPartition) then
-				break;
+			if coefficients = fail then
+				return false;
 			fi;
 		od;
+	od;
+	return true;
+end;
+
+#
+ComputeGoodPartitions := function(R)
+	local numGoodPartitions, partitions, partition, isGoodPartition;
+  numGoodPartitions := 0;
+	# enumerate potential partitions
+	partitions := EnumeratePartitionBases(OrderOfScheme(R));
+
+	# for each potential partition
+	for partition in partitions do
+
+		isGoodPartition := IsGoodPartition(R, partition);
 
 		# if a good partition
 		if isGoodPartition = true then
-			Println("The partition basis ");
-			PrintMatrix(TransposedMat(partitionBasis));
-			Println("Is a good partitioning of ");
-			PrintMatrix(R);
+			numGoodPartitions := numGoodPartitions + 1;
+			PrintMatrix(TransposedMat(partition));
 		fi;
 	od;
+
+	Print("The number of good partitions is : ");
+	Println(numGoodPartitions);
 end;
 
-ComputeGoodPartitions(M);
+ComputeGoodPartitions(S_3);
