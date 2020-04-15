@@ -83,12 +83,12 @@ M:=[[0, 1, 2, 2, 1],
 	  [2, 2, 1, 0, 1],
 	  [1, 2, 2, 1, 0]];
 # a scheme of order 6 that comes from S_3
-S_3 := [ [ 0, 1, 1, 2, 2, 1 ],
-         [ 1, 0, 2, 1, 1, 2 ],
-				 [ 1, 2, 0, 1, 1, 2 ],
-				 [ 2, 1, 1, 0, 2, 1 ],
-				 [ 2, 1, 1, 2, 0, 1 ],
-				 [ 1, 2, 2, 1, 1, 0 ] ];
+S3 := [[0, 1, 2, 3, 4, 5],
+			[1, 0, 5, 4, 3, 2],
+			[2, 4, 0, 5, 1, 3],
+			[3, 5, 4, 0, 2, 1],
+			[5, 3, 1, 2, 0, 4],
+			[4, 2, 3, 1, 5, 0]];
 
 # Creates a basis for the module given a partition.
 # 	partition, the set of partition vectors of the all
@@ -133,27 +133,175 @@ IsGoodPartition := function(R, partition)
 	return true;
 end;
 
-#
-ComputeGoodPartitions := function(R)
-	local numGoodPartitions, partitions, partition, isGoodPartition;
-  numGoodPartitions := 0;
-	# enumerate potential partitions
-	partitions := EnumeratePartitionBases(OrderOfScheme(R));
+# # Determines whether or not two good partitions are isomorpic
+# # 	autoGroup, the automorphism group of the scheme we are inspecting
+# # 		knownPartition, the classified good partition
+# # 		unknownPartition, the good partition we are unsure we have aready
+# # 			discovred.
+# IsIsomorphic := function (autoGroup, knownPartition, unknownPartition)
+# 	local orbit, part, part2, auto, isIso, oneEq, isomorphicPart, partSentTo;
+# 	if not(Length(knownPartition) = Length(unknownPartition)) then
+# 		return false;
+# 	fi;
+# 	orbit := [];
+# 	for auto in autoGroup do
+# 		isomorphicPart := [];
+# 		#boolean starts as true
+# 		isIso := true;
+# 		for part in knownPartition do
+# 			partSentTo := OnPoints(part, auto);
+# 			oneEq x:= false;
+# 			for part2 in unknownPartition do
+# 				if(part2 = partSentTo) then
+# 					oneEq := true;
+# 					break;
+# 				fi;
+# 			od;
+# 			if oneEq then
+# 				continue;
+# 			else
+# 				break;
+# 			fi;
+# 			#Add(isomp)
+# 				#for loop that goes through unknownpartition
+# 				#compares all values of un part  to partsentto
+# 				#if one is equal break;
+# 				#if none are equal boolean is false
+# 			#if boolean = false
+# 			#break;
+# 		od;
+# 		if isIso then
+# 			return true;
+# 		fi;
+# 		#if boolean still true return true;
+# 	od;
+#    return false;
+#  end;
+#   # possibly run through all orbits genrated by knownPartition and compare
+#   # w/ unknown partition to see if isomorphic
 
-	# for each potential partition
-	for partition in partitions do
-
-		isGoodPartition := IsGoodPartition(R, partition);
-
-		# if a good partition
-		if isGoodPartition = true then
-			numGoodPartitions := numGoodPartitions + 1;
-			PrintMatrix(TransposedMat(partition));
+# we are assuming that if the image of partition1 is a subset of
+# partition2, then we must have that Im(partition1) = partition2
+IsIsomorphic := function(autoGroup, partition1, partition2)
+	local auto, isIso;
+	if not(Length(partition1) = Length(partition2)) then
+		return false;
+	fi;
+	for auto in autoGroup do
+		isIso := CheckEquivalent(auto, partition1, partition2);
+		if isIso then
+			return true;
 		fi;
 	od;
-
-	Print("The number of good partitions is : ");
-	Println(numGoodPartitions);
+	# if every automorphism does not send partition1 to partition2,
+	# then they are not isomorphic
+	return false;
 end;
 
-ComputeGoodPartitions(S_3);
+# returns true iff partition1 and partition2 are equivalent under
+# the given automorphism
+CheckEquivalent := function(automorphism, partition1, partition2)
+	local part, permuted;
+	for part in partition1 do
+		permuted := PermutePart(automorphism, part);
+		if not(permuted in partition2) then
+			return false;
+		fi;
+  od;
+	return true;
+end;
+
+# Applies a permutation to a partition j vector
+#		permutation, our input permutation
+#		part, the j vector we are permuting
+PermutePart := function(permutation, part)
+	local result, i;
+	result := ShallowCopy(part);
+	for i in [1..Length(part)] do
+		# i gets mapped to permuation applied to i
+		result[i^permutation] := part[i];
+	od;
+	return result;
+end;
+
+# Applies a permutation to every j vector of a partition
+#		permutation, our input permutation
+#		partition, the partition we are permuting
+PermutePartition := function (permutation, partition)
+  local result, i;
+	result := [];
+	for i in [1..Length(partition)] do
+		Add(result, PermutePart(permutation, partition[i]));
+	od;
+	return result;
+end;
+
+PartitionToJVectors := function(partition)
+	local jvectors;
+	jvectors = [];
+
+	for part in partition do
+		jvector := MyZeroVector(n); # the current j vector
+
+		for element in part do
+			jvector[element] := 1;
+		od;
+
+		Add(jvectors, jvector);
+	od;
+	return jvectors;
+end;
+
+ComputeGoodPartitions = function(R)
+	local n, partitionIterator, jvectors, isGoodPartition;
+
+	n := OrderOfScheme(R);
+	partitionIterator := IteratorOfPartitions(n);
+	for partition in partitionIterator do
+		jvectors := PartitionToJVectors(partition);
+
+		isGoodPartition := IsGoodPartition(jvectors);
+
+	od;
+end;
+
+#
+# ComputeGoodPartitions := function(R)
+# 	local numGoodPartitions, representatives, automorphisms, partitions, partition, isGoodPartition, representative;
+#   numGoodPartitions := 0;
+# 	# enumerate potential partitions
+# 	partitions := EnumeratePartitionBases(OrderOfScheme(R));
+#
+# 	# the set of representatives of equivalence classes of good partitions
+# 	representatives := [];
+# 	automorphisms := AutomorphismGroupOfScheme(R);
+#
+# 	# for each potential partition
+# 	for partition in partitions do
+#
+# 		isGoodPartition := IsGoodPartition(R, partition);
+#
+# 		# if a good partition
+# 		if isGoodPartition = true then
+# 			# have we already discovered an isomorphic version of this?
+# 			if (Length(representatives) = 0) then
+# 				Add(representatives, partition);
+# 			else
+# 				for representative in representatives do
+# 					if not(IsIsomorphic(automorphisms, representative, partition)) then
+# 						Add(representatives, partition);
+# 					fi;
+# 	      od;
+# 			fi;
+# 			numGoodPartitions := numGoodPartitions + 1;
+# 			#PrintMatrix(TransposedMat(partition));
+# 		fi;
+# 	od;
+#
+# 	Print("The number of good partitions is : ");
+# 	Println(numGoodPartitions);
+# 	Print("The number of good partition equivalence classes is : ");
+# 	Println(Length(representatives));
+# end;
+
+#ComputeGoodPartitions(S3);
