@@ -180,6 +180,32 @@ end;
 #   # possibly run through all orbits genrated by knownPartition and compare
 #   # w/ unknown partition to see if isomorphic
 
+# Applies a permutation to a partition j vector
+#		permutation, our input permutation
+#		part, the j vector we are permuting
+PermutePart := function(permutation, part)
+	local result, i;
+	result := ShallowCopy(part);
+	for i in [1..Length(part)] do
+		# i gets mapped to permuation applied to i
+		result[i^permutation] := part[i];
+	od;
+	return result;
+end;
+
+# returns true iff partition1 and partition2 are equivalent under
+# the given automorphism
+CheckEquivalent := function(automorphism, partition1, partition2)
+	local part, permuted;
+	for part in partition1 do
+		permuted := PermutePart(automorphism, part);
+		if not(permuted in partition2) then
+			return false;
+		fi;
+  od;
+	return true;
+end;
+
 # we are assuming that if the image of partition1 is a subset of
 # partition2, then we must have that Im(partition1) = partition2
 IsIsomorphic := function(autoGroup, partition1, partition2)
@@ -198,32 +224,6 @@ IsIsomorphic := function(autoGroup, partition1, partition2)
 	return false;
 end;
 
-# returns true iff partition1 and partition2 are equivalent under
-# the given automorphism
-CheckEquivalent := function(automorphism, partition1, partition2)
-	local part, permuted;
-	for part in partition1 do
-		permuted := PermutePart(automorphism, part);
-		if not(permuted in partition2) then
-			return false;
-		fi;
-  od;
-	return true;
-end;
-
-# Applies a permutation to a partition j vector
-#		permutation, our input permutation
-#		part, the j vector we are permuting
-PermutePart := function(permutation, part)
-	local result, i;
-	result := ShallowCopy(part);
-	for i in [1..Length(part)] do
-		# i gets mapped to permuation applied to i
-		result[i^permutation] := part[i];
-	od;
-	return result;
-end;
-
 # Applies a permutation to every j vector of a partition
 #		permutation, our input permutation
 #		partition, the partition we are permuting
@@ -236,9 +236,9 @@ PermutePartition := function (permutation, partition)
 	return result;
 end;
 
-PartitionToJVectors := function(partition)
-	local jvectors;
-	jvectors = [];
+PartitionToJVectors := function(partition, n)
+	local jvectors, part, element, jvector;
+	jvectors := [];
 
 	for part in partition do
 		jvector := MyZeroVector(n); # the current j vector
@@ -252,20 +252,58 @@ PartitionToJVectors := function(partition)
 	return jvectors;
 end;
 
-ComputeGoodPartitions = function(R)
-	local n, partitionIterator, jvectors, isGoodPartition;
-
+ComputeGoodPartitions := function(R)
+	local n, partitionIterator, jvectors, representatives, partition, partitions,representative, automorphisms, numGoodPartitions, previouslyDiscovered;
+	Newline();
 	n := OrderOfScheme(R);
-	partitionIterator := IteratorOfPartitions(n);
-	for partition in partitionIterator do
-		jvectors := PartitionToJVectors(partition);
+	numGoodPartitions := 0;
+	#partitionIterator := IteratorOfPartitions(n);
+  partitions := PartitionsSet([1..n]);
+	# the set of representatives of equivalence classes of good partitions
+	representatives := [];
+	automorphisms := AutomorphismGroupOfScheme(R);
 
-		isGoodPartition := IsGoodPartition(jvectors);
+	#for partition in partitionIterator do
+	for partition in partitions do
+		jvectors := PartitionToJVectors(partition, n);
 
+		# if a good partition
+		if IsGoodPartition(R, jvectors) = true then
+			numGoodPartitions := numGoodPartitions + 1;
+			# if this is the first good partition, add it to the representatives
+			if (Length(representatives) = 0) then
+				Add(representatives, jvectors);
+				# if not, determine if it was previously discovered
+			else
+				previouslyDiscovered := false;
+
+				# check if good partition is isomorphic to previously discovered good partitions
+				for representative in representatives do
+					if IsIsomorphic(automorphisms, representative, jvectors) then
+						previouslyDiscovered := true;
+						break;
+					fi;
+				od;
+
+				#if nothing else already in the list is isomorphic, then add jvectors
+				if not(previouslyDiscovered) then
+					Add(representatives, jvectors);
+				fi;
+			fi;
+		fi;
 	od;
+	Println(numGoodPartitions);
+	Println(Length(representatives));
+	# for rep in representatives do
+	# 	PrintMatrix(TransposedMat(rep));
+	# od;
+	# return representatives;
 end;
 
-#
+#repS3 := ComputeGoodPartitions(S3);
+# PrintMatrix(TransposedMat(PermutePartition((2,3)(5,6), repS3[2])));
+#Println(IsIsomorphic(AutomorphismGroupOfScheme(S3), repS3[2], repS3[4]));
+
 # ComputeGoodPartitions := function(R)
 # 	local numGoodPartitions, representatives, automorphisms, partitions, partition, isGoodPartition, representative;
 #   numGoodPartitions := 0;
@@ -303,5 +341,3 @@ end;
 # 	Print("The number of good partition equivalence classes is : ");
 # 	Println(Length(representatives));
 # end;
-
-#ComputeGoodPartitions(S3);
