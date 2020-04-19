@@ -1,5 +1,5 @@
 # Tal Rastopchin and Gabby Masini
-# April 7, 2020
+# April 19, 2020
 
 # Read("enumerate_partitions.gap");
 
@@ -15,7 +15,7 @@ Read("./classified_schemes/schemes_order08.gap");
 Read("./classified_schemes/schemes_order09.gap");
 Read("./classified_schemes/schemes_order10.gap");
 
-# we need thispackage
+# we want to use this package
 LoadPackage("datastructures");
 
 # prints a new line
@@ -82,13 +82,74 @@ M:=[[0, 1, 2, 2, 1],
 	  [2, 1, 0, 1, 2],
 	  [2, 2, 1, 0, 1],
 	  [1, 2, 2, 1, 0]];
+
 # a scheme of order 6 that comes from S_3
 S3 := [[0, 1, 2, 3, 4, 5],
-			[1, 0, 5, 4, 3, 2],
-			[2, 4, 0, 5, 1, 3],
-			[3, 5, 4, 0, 2, 1],
-			[5, 3, 1, 2, 0, 4],
-			[4, 2, 3, 1, 5, 0]];
+			 [1, 0, 5, 4, 3, 2],
+			 [2, 4, 0, 5, 1, 3],
+			 [3, 5, 4, 0, 2, 1],
+			 [5, 3, 1, 2, 0, 4],
+			 [4, 2, 3, 1, 5, 0]];
+
+S :=	[[ 0, 1, 2, 3, 4, 5],
+			 [ 1, 0, 3, 2, 5, 4],
+			 [ 2, 4, 0, 5, 1, 3],
+			 [ 4, 2, 5, 0, 3, 1],
+       [ 3, 5, 1, 4, 0, 2],
+			 [ 5, 3, 4, 1, 2, 0]];
+
+# GroupToScheme := function(G)
+# 	local elements, R, n, multiplicationTable;
+# 	elements := Elements(G);
+# 	multiplicationTable := MultiplicationTable(elements);
+# 	n := Length(multiplicationTable);
+# 	R := IdentityMat(n);
+# 	for i in [1..n] do
+# 		for j in [1..n] do
+# 			R[i][j] := multiplicationTable[i][j] - 1;
+# 		od;
+# 	od;
+# 	if not(IsAssociationScheme(R)) then
+# 		Print("ERROR\n");
+# 	fi;
+# 	return R;
+# end;
+
+e:= Elements(SymmetricGroup(3));
+PrintArray(MultiplicationTable( e ));
+
+GroupToScheme :=function(G)
+	local elements, dictionary, n, M, i, j, zeroIndex, row, element, index;
+	elements := Elements(G);
+	n:=Length (elements);
+	dictionary:=NewDictionary(elements[1], true);
+	M := MyZeroVector(n);
+	# construct our hash table of element, relation pairs
+	# (we do this so our algorithm is O(n^2) and not O(n^3))
+  for i in [0..(n-1)] do
+		AddDictionary(dictionary, elements[i+1], i);
+	od;
+
+	# consturuct our relation matrix
+	for i in [1..n] do
+		zeroIndex := 0;
+		row := [];
+		for j in [1..n] do
+			element := elements[i]*elements[j];
+			index := LookupDictionary(dictionary, element);
+			Add(row, index);
+			if index = 0 then
+				zeroIndex := j;
+			fi;
+		od;
+		M[zeroIndex] := row;
+	od;
+	if not(IsAssociationScheme(M)) then
+		Print("ERROR\n");
+	else
+  	return M;
+	fi;
+end;
 
 # Creates a basis for the module given a partition.
 # 	partition, the set of partition vectors of the all
