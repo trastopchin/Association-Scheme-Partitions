@@ -1,12 +1,12 @@
 # Tal Rastopchin and Gabby Masini
-# April 19, 2020
+# April 21, 2020
 
 # Read("enumerate_partitions.gap");
 
 # load Miyamoto and Hanaki's elementary functions for association schemes
 Read("./association_scheme.gap");
 
-# load Miyamoto and Hanaki's classified association schemes of order 5 and 16
+# load Miyamoto and Hanaki's classified association schemes of orde
 # as05 is a list of the schemes of order 5
 Read("./classified_schemes/schemes_order05.gap");
 Read("./classified_schemes/schemes_order06.gap");
@@ -14,9 +14,7 @@ Read("./classified_schemes/schemes_order07.gap");
 Read("./classified_schemes/schemes_order08.gap");
 Read("./classified_schemes/schemes_order09.gap");
 Read("./classified_schemes/schemes_order10.gap");
-
-# we want to use this package
-LoadPackage("datastructures");
+Read("./classified_schemes/schemes_order11.gap");
 
 # prints a new line
 Newline := function()
@@ -29,7 +27,7 @@ Println := function(object)
   Print("\n");
 end;
 
-# prints out a matrix with better formatting
+# prints out a matrix A with better formatting
 PrintMatrix := function(A)
 	local row;
 	for row in A do
@@ -39,111 +37,58 @@ PrintMatrix := function(A)
 end;
 
 # makes a zero vector of dimension n
+# TODO: can we do this in constant time?
 MyZeroVector := function (n)
   local zeroVector, i;
   zeroVector := [];
-  # is there a faster way of doing this?
   for i in [1..n] do
     Add(zeroVector, 0);
   od;
   return zeroVector;
 end;
 
-# enumerates our partition bases
-EnumeratePartitionBases := function (n)
-  local partitionBases, partitions, partition, partitionBasis, part, partitionVector, element;
-
-  partitionBases := []; # the set of partition bases
-  partitions := PartitionsSet([1..n]); # compute partitions
-
-  # each partition gives us a partition basis
-  for partition in partitions do
-    partitionBasis := []; # the current set of j vectors
-
-    for part in partition do
-      partitionVector := MyZeroVector(n); # the current j vector
-
-      for element in part do
-        partitionVector[element] := 1;
-      od;
-
-      Add(partitionBasis, partitionVector);
-    od;
-    Add(partitionBases, partitionBasis);
-  od;
-
-  return partitionBases;
-end;
-
-# a scheme of order 5
-# scheme that comes from Z_5 ?
-M:=[[0, 1, 2, 2, 1],
-	  [1, 0, 1, 2, 2],
-	  [2, 1, 0, 1, 2],
-	  [2, 2, 1, 0, 1],
-	  [1, 2, 2, 1, 0]];
-
-# a scheme of order 6 that comes from S_3
-S3 := [[0, 1, 2, 3, 4, 5],
-			 [1, 0, 5, 4, 3, 2],
-			 [2, 4, 0, 5, 1, 3],
-			 [3, 5, 4, 0, 2, 1],
-			 [5, 3, 1, 2, 0, 4],
-			 [4, 2, 3, 1, 5, 0]];
-
-S :=	[[ 0, 1, 2, 3, 4, 5],
-			 [ 1, 0, 3, 2, 5, 4],
-			 [ 2, 4, 0, 5, 1, 3],
-			 [ 4, 2, 5, 0, 3, 1],
-       [ 3, 5, 1, 4, 0, 2],
-			 [ 5, 3, 4, 1, 2, 0]];
-
-# GroupToScheme := function(G)
-# 	local elements, R, n, multiplicationTable;
-# 	elements := Elements(G);
-# 	multiplicationTable := MultiplicationTable(elements);
-# 	n := Length(multiplicationTable);
-# 	R := IdentityMat(n);
-# 	for i in [1..n] do
-# 		for j in [1..n] do
-# 			R[i][j] := multiplicationTable[i][j] - 1;
-# 		od;
-# 	od;
-# 	if not(IsAssociationScheme(R)) then
-# 		Print("ERROR\n");
-# 	fi;
-# 	return R;
-# end;
-
-#e:= Elements(SymmetricGroup(3));
-#PrintArray(MultiplicationTable( e ));
-
-GroupToScheme :=function(G)
+# Takes a group G and converts it to an association scheme
+# with 0 relation in diagonal.
+# Prints an error if it is not an association scheme,
+# otherwise returns the scheme
+GroupToScheme := function(G)
 	local elements, dictionary, n, M, i, j, zeroIndex, row, element, index;
+
+	# the first element of elements is always the Identity
 	elements := Elements(G);
-	n:=Length (elements);
-	dictionary:=NewDictionary(elements[1], true);
-	M := MyZeroVector(n);
+	n := Length (elements);
+
+	# we use this dictionary to index our elements
+	dictionary :=  NewDictionary(elements[1], true);
 	# construct our hash table of element, relation pairs
 	# (we do this so our algorithm is O(n^2) and not O(n^3))
   for i in [0..(n-1)] do
 		AddDictionary(dictionary, elements[i+1], i);
 	od;
 
-	# consturuct our relation matrix
+	# this is our relation matrix
+	M := MyZeroVector(n);
+
+	# construct our relation matrix
 	for i in [1..n] do
 		zeroIndex := 0;
 		row := [];
 		for j in [1..n] do
+			# we multiply every element of G by every other element of G
 			element := elements[i]*elements[j];
+			# look up its index in the DictionaryByList
 			index := LookupDictionary(dictionary, element);
 			Add(row, index);
+			# we determine where to add the vector so the zero is along
+			# the relational matrix's diagonal
 			if index = 0 then
 				zeroIndex := j;
 			fi;
 		od;
 		M[zeroIndex] := row;
 	od;
+
+	# assert that our result is a relational matrix
 	if not(IsAssociationScheme(M)) then
 		Print("ERROR\n");
 	else
@@ -163,7 +108,7 @@ end;
 
 # Computes the coefficients of a vector sigma * j
 # in terms of the basis.
-# 	sigma, an nxn adjacency matrix of a scheme R
+# 	sigma, an n x n adjacency matrix of a scheme R
 #		j, a length n vector of the partition basis
 #		basis, the partition basis of our vector space (module?)
 ComputeCoefficients := function(sigma, j, basis)
@@ -175,7 +120,7 @@ end;
 # Determines whether or not a specific partition is
 # a good partition of the given scheme. Does this by
 # performing an exhaustive search.
-# 	R, the relational mattrx of our given scheme.
+# 	R, the relational matrix of our given scheme.
 # 	partition, the partition we are inspecting.
 IsGoodPartition := function(R, partition)
 	local basis, j, sigma, coefficients;
@@ -194,52 +139,6 @@ IsGoodPartition := function(R, partition)
 	return true;
 end;
 
-# # Determines whether or not two good partitions are isomorpic
-# # 	autoGroup, the automorphism group of the scheme we are inspecting
-# # 		knownPartition, the classified good partition
-# # 		unknownPartition, the good partition we are unsure we have aready
-# # 			discovred.
-# IsIsomorphic := function (autoGroup, knownPartition, unknownPartition)
-# 	local orbit, part, part2, auto, isIso, oneEq, isomorphicPart, partSentTo;
-# 	if not(Length(knownPartition) = Length(unknownPartition)) then
-# 		return false;
-# 	fi;
-# 	orbit := [];
-# 	for auto in autoGroup do
-# 		isomorphicPart := [];
-# 		#boolean starts as true
-# 		isIso := true;
-# 		for part in knownPartition do
-# 			partSentTo := OnPoints(part, auto);
-# 			oneEq x:= false;
-# 			for part2 in unknownPartition do
-# 				if(part2 = partSentTo) then
-# 					oneEq := true;
-# 					break;
-# 				fi;
-# 			od;
-# 			if oneEq then
-# 				continue;
-# 			else
-# 				break;
-# 			fi;
-# 			#Add(isomp)
-# 				#for loop that goes through unknownpartition
-# 				#compares all values of un part  to partsentto
-# 				#if one is equal break;
-# 				#if none are equal boolean is false
-# 			#if boolean = false
-# 			#break;
-# 		od;
-# 		if isIso then
-# 			return true;
-# 		fi;
-# 		#if boolean still true return true;
-# 	od;
-#    return false;
-#  end;
-#   # possibly run through all orbits genrated by knownPartition and compare
-#   # w/ unknown partition to see if isomorphic
 
 # Applies a permutation to a partition j vector
 #		permutation, our input permutation
@@ -254,10 +153,13 @@ PermutePart := function(permutation, part)
 	return result;
 end;
 
-# returns true iff partition1 and partition2 are equivalent under
-# the given automorphism
+# Returns true if and only if partition1 and partition2 are
+# equivalent under the given automorphism
 CheckEquivalent := function(automorphism, partition1, partition2)
 	local part, permuted;
+	# if every part of partition1 gets sent to a part belonging to
+	# partition2 by the automorphism, then partion1 must be equivalent
+	# to partion2.
 	for part in partition1 do
 		permuted := PermutePart(automorphism, part);
 		if not(permuted in partition2) then
@@ -267,16 +169,16 @@ CheckEquivalent := function(automorphism, partition1, partition2)
 	return true;
 end;
 
-# we are assuming that if the image of partition1 is a subset of
-# partition2, then we must have that Im(partition1) = partition2
+# Returns true if and only if partition1 and partition2 are
+# equivalent under the given automorphism group, autoGroup
 IsIsomorphic := function(autoGroup, partition1, partition2)
-	local auto, isIso;
+	local auto;
+	# make sure partitions have same cardinality
 	if not(Length(partition1) = Length(partition2)) then
 		return false;
 	fi;
 	for auto in autoGroup do
-		isIso := CheckEquivalent(auto, partition1, partition2);
-		if isIso then
+		if CheckEquivalent(auto, partition1, partition2) then
 			return true;
 		fi;
 	od;
@@ -297,6 +199,10 @@ PermutePartition := function (permutation, partition)
 	return result;
 end;
 
+# Converts a partitions of integers [1..n] to
+# a set of j vectors of length n of 1s and 0s
+# depending on the indices indicated by the partition
+# returns a set of j vectors based on partition
 PartitionToJVectors := function(partition, n)
 	local jvectors, part, element, jvector;
 	jvectors := [];
@@ -313,18 +219,25 @@ PartitionToJVectors := function(partition, n)
 	return jvectors;
 end;
 
+# Computes good partitions of scheme R
+# Returns an output list with the first element being
+# the number of good partitions and the second element
+# being the list of representatives of each equivalence class
+# of good partitions
 ComputeGoodPartitions := function(R)
-	local n, partitionIterator, jvectors, representatives, partition, partitions,representative, automorphisms, numGoodPartitions, previouslyDiscovered;
+	local n, jvectors, representatives, partition, partitions,representative, automorphisms, numGoodPartitions, previouslyDiscovered;
 	Newline();
+
 	n := OrderOfScheme(R);
 	numGoodPartitions := 0;
-	#partitionIterator := IteratorOfPartitions(n);
+
   partitions := PartitionsSet([1..n]);
+
 	# the set of representatives of equivalence classes of good partitions
 	representatives := [];
 	automorphisms := AutomorphismGroupOfScheme(R);
 
-	#for partition in partitionIterator do
+	# for partition in partitionIterator do
 	for partition in partitions do
 		jvectors := PartitionToJVectors(partition, n);
 
@@ -357,50 +270,5 @@ ComputeGoodPartitions := function(R)
 	Println(numGoodPartitions);
 	Print("Equivalence Classes: ");
 	Println(Length(representatives));
-	# for rep in representatives do
-	# 	PrintMatrix(TransposedMat(rep));
-	# od;
-	# return representatives;
+	return [numGoodPartitions, representatives];
 end;
-
-#repS3 := ComputeGoodPartitions(S3);
-# PrintMatrix(TransposedMat(PermutePartition((2,3)(5,6), repS3[2])));
-#Println(IsIsomorphic(AutomorphismGroupOfScheme(S3), repS3[2], repS3[4]));
-
-# ComputeGoodPartitions := function(R)
-# 	local numGoodPartitions, representatives, automorphisms, partitions, partition, isGoodPartition, representative;
-#   numGoodPartitions := 0;
-# 	# enumerate potential partitions
-# 	partitions := EnumeratePartitionBases(OrderOfScheme(R));
-#
-# 	# the set of representatives of equivalence classes of good partitions
-# 	representatives := [];
-# 	automorphisms := AutomorphismGroupOfScheme(R);
-#
-# 	# for each potential partition
-# 	for partition in partitions do
-#
-# 		isGoodPartition := IsGoodPartition(R, partition);
-#
-# 		# if a good partition
-# 		if isGoodPartition = true then
-# 			# have we already discovered an isomorphic version of this?
-# 			if (Length(representatives) = 0) then
-# 				Add(representatives, partition);
-# 			else
-# 				for representative in representatives do
-# 					if not(IsIsomorphic(automorphisms, representative, partition)) then
-# 						Add(representatives, partition);
-# 					fi;
-# 	      od;
-# 			fi;
-# 			numGoodPartitions := numGoodPartitions + 1;
-# 			#PrintMatrix(TransposedMat(partition));
-# 		fi;
-# 	od;
-#
-# 	Print("The number of good partitions is : ");
-# 	Println(numGoodPartitions);
-# 	Print("The number of good partition equivalence classes is : ");
-# 	Println(Length(representatives));
-# end;
