@@ -115,8 +115,8 @@ S :=	[[ 0, 1, 2, 3, 4, 5],
 # 	return R;
 # end;
 
-e:= Elements(SymmetricGroup(3));
-PrintArray(MultiplicationTable( e ));
+#e:= Elements(SymmetricGroup(3));
+#PrintArray(MultiplicationTable( e ));
 
 GroupToScheme :=function(G)
 	local elements, dictionary, n, M, i, j, zeroIndex, row, element, index;
@@ -353,7 +353,9 @@ ComputeGoodPartitions := function(R)
 			fi;
 		fi;
 	od;
+	Print("Good Partitions: ");
 	Println(numGoodPartitions);
+	Print("Equivalence Classes: ");
 	Println(Length(representatives));
 	# for rep in representatives do
 	# 	PrintMatrix(TransposedMat(rep));
