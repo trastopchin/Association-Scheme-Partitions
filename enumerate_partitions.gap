@@ -6,7 +6,7 @@
 # load Miyamoto and Hanaki's elementary functions for association schemes
 Read("./association_scheme.gap");
 
-# load Miyamoto and Hanaki's classified association schemes of orde
+# load Miyamoto and Hanaki's classified association schemes
 # as05 is a list of the schemes of order 5
 Read("./classified_schemes/schemes_order05.gap");
 Read("./classified_schemes/schemes_order06.gap");
@@ -218,6 +218,81 @@ PartitionToJVectors := function(partition, n)
 	od;
 	return jvectors;
 end;
+
+# Enumerates the ordered partitions
+CreatePartitions := function(n)
+	local v, current, temp, partitions, index, base;
+	partitions := [];
+	v := MyZeroVector(n);
+	Add(partitions, ShallowCopy(v));
+  base := n;
+
+	while base > 0 do
+		# add 1 in base n
+		v[n] := v[n] + 1;
+		index := n;
+
+		# carry if we go over the base
+		if v[index] > (base-1) then
+			base := base-1;
+		fi;
+		while v[index] > base-1 do
+			v[index] := 0;
+			# carry
+			index := index - 1;
+			v[index] := v[index] + 1;
+		od;
+
+		Add(partitions, ShallowCopy(v));
+	od;
+	return partitions;
+end;
+
+# CreatePartitions := function(n)
+# 	local v, current, temp, partitions, index, base, k;
+# 	partitions := [];
+# 	v := MyZeroVector(n);
+# 	Add(partitions, ShallowCopy(v));
+# 	base := n;
+# 	while base > 0 do
+# 		# add 1 in base n
+# 		v[n] := v[n] + 1;
+# 		index := n;
+#
+# 		# carry if we go over the base
+# 		# if v[index] > (base-1) then
+# 		# 	base := base-1;
+# 		# fi;
+# 		while v[index] > base-1 do
+# 			Print(v);
+# 			Print("\n");
+# 			v[index] := 0;
+# 			# carry
+# 			index := index - 1;
+# 			k := v[index] + 1;
+# 			v[index] := k;
+# 		od;
+# 		base := base -1;
+# 		Add(partitions, ShallowCopy(v));
+# 	od;
+# 	return partitions;
+# end;
+"
+[ [ 0, 0, 1 ], [ 0, 0, 2 ], [ 0, 1, 0 ] ]
+
+	000, 001, 002, 010, 011.
+
+	The way I would do this is to start with all 0’s.
+	(This corresponds to the partition where every cell is a single element).
+	 Then, start increasing the last digit until it equals the number of 0’s
+	 that precede it.  Then, make the last digit a 0 and the second-to-last
+	 digit a 1.  Then, repeat with the last digit.  That is, do the same thing
+	 we do when we are counting in decimal notation, but rather than flipping
+	 back to 0 when a given digit is a 9, flip to 0 when a given digit is equal
+	 to the number of 0’s that precede it.  This is exactly how the numbers are
+	 ordered for the 4-digit sequences listed above.";
+
+#ConvertToPartition := function(v)
 
 # Computes good partitions of scheme R
 # Returns an output list with the first element being
