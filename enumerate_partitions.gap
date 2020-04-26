@@ -139,7 +139,6 @@ IsGoodPartition := function(R, partition)
 	return true;
 end;
 
-
 # Applies a permutation to a partition j vector
 #		permutation, our input permutation
 #		part, the j vector we are permuting
@@ -207,98 +206,103 @@ PartitionToJVectors := function(partition, n)
 	local jvectors, part, element, jvector;
 	jvectors := [];
 
+	#for each component of the partition, create a jvector
 	for part in partition do
-		jvector := MyZeroVector(n); # the current j vector
 
+		# create a j vector of all zeros
+		jvector := MyZeroVector(n);
+
+		# if element is in partition set it's corresponding
+		# element in the j vector to 1
 		for element in part do
 			jvector[element] := 1;
 		od;
 
+		# add this jvector to our set of jvectors
 		Add(jvectors, jvector);
 	od;
 	return jvectors;
 end;
 
-# Enumerates the ordered partitions
-CreatePartitions := function(n)
-	local v, current, temp, partitions, index, base;
-	partitions := [];
-	v := MyZeroVector(n);
-	Add(partitions, ShallowCopy(v));
-  base := n;
-
-	while base > 0 do
-		# add 1 in base n
-		v[n] := v[n] + 1;
-		index := n;
-
-		# carry if we go over the base
-		if v[index] > (base-1) then
-			base := base-1;
+# Creates the auxiliary array for a given
+# partition number array. The ith component of the
+# array corresponds to how many zeroes preceed
+# the ith compnent in the array.
+CreateAuxiliary := function(partition)
+	local i, aux, val;
+	# local variables
+	aux := [];
+	val := 0;
+	# iterate through the partition, creating the auxiliary
+	for i in partition do
+		Add(aux, val);
+		# when we encounter a zero, set the appropriate value
+		if i = 0 then
+			val := val + 1;
 		fi;
-		while v[index] > base-1 do
-			v[index] := 0;
-			# carry
-			index := index - 1;
-			v[index] := v[index] + 1;
-		od;
-
-		Add(partitions, ShallowCopy(v));
 	od;
-	return partitions;
+	return aux;
 end;
 
-# CreatePartitions := function(n)
-# 	local v, current, temp, partitions, index, base, k;
-# 	partitions := [];
-# 	v := MyZeroVector(n);
-# 	Add(partitions, ShallowCopy(v));
-# 	base := n;
-# 	while base > 0 do
-# 		# add 1 in base n
-# 		v[n] := v[n] + 1;
-# 		index := n;
-#
-# 		# carry if we go over the base
-# 		# if v[index] > (base-1) then
-# 		# 	base := base-1;
-# 		# fi;
-# 		while v[index] > base-1 do
-# 			Print(v);
-# 			Print("\n");
-# 			v[index] := 0;
-# 			# carry
-# 			index := index - 1;
-# 			k := v[index] + 1;
-# 			v[index] := k;
-# 		od;
-# 		base := base -1;
-# 		Add(partitions, ShallowCopy(v));
-# 	od;
-# 	return partitions;
-# end;
-"
-[ [ 0, 0, 1 ], [ 0, 0, 2 ], [ 0, 1, 0 ] ]
+# Given a partition sequence prev, produces the
+# next partition sequence in our ourdering of
+# the partition sequences
+NextPartitionSequence := function(prev)
+	local aux, length, new, index;
 
-	000, 001, 002, 010, 011.
+	aux := CreateAuxiliary(prev);
+	length := Length(prev);
 
-	The way I would do this is to start with all 0’s.
-	(This corresponds to the partition where every cell is a single element).
-	 Then, start increasing the last digit until it equals the number of 0’s
-	 that precede it.  Then, make the last digit a 0 and the second-to-last
-	 digit a 1.  Then, repeat with the last digit.  That is, do the same thing
-	 we do when we are counting in decimal notation, but rather than flipping
-	 back to 0 when a given digit is a 9, flip to 0 when a given digit is equal
-	 to the number of 0’s that precede it.  This is exactly how the numbers are
-	 ordered for the 4-digit sequences listed above.";
+	# our new partition sequence
+	new  := ShallowCopy(prev);
 
-#ConvertToPartition := function(v)
+	# if we can add one, add it
+	if aux[length] > prev[length] then
+     new[length]:= new[length] + 1;
+	# otherwise find last spot in prev where aux is greater
+	# and add 1 and make all of the following elements 0
+	else
+		index := length;
+
+		# moves backwards along array
+		while index>0 do
+			if aux[index] > prev[index] then
+				break;
+			else
+				# make the current element 0
+				new[index] := 0;
+			fi;
+			index := index - 1;
+		od;
+		# increment the desired element
+		new[index] := new[index] + 1;
+	fi;
+	return new;
+end;
+
+# Turns a partition sequence into a partition
+SequenceToPartition := function(seq)
+	local partition, index, component;
+	# each partition starts like this
+	partition := [[1]];
+	for index in [2..Length(seq)] do
+		component := seq[index];
+		# if component is 0, we add a new part
+		if component = 0 then
+			Add(partition, [index]);
+		# if not, we add into the corresponding part
+		else
+		  Add(partition[component], index);
+		fi;
+	od;
+	return partition;
+end;
 
 # Computes good partitions of scheme R
 # Returns an output list with the first element being
 # the number of good partitions and the second element
 # being the list of representatives of each equivalence class
-# of good partitions
+# of good partitions.
 ComputeGoodPartitions := function(R)
 	local n, jvectors, representatives, partition, partitions,representative, automorphisms, numGoodPartitions, previouslyDiscovered;
 	Newline();
