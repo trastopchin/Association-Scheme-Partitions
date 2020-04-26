@@ -12,6 +12,7 @@ Read("./classified_schemes/schemes_order08.gap");
 Read("./classified_schemes/schemes_order09.gap");
 Read("./classified_schemes/schemes_order10.gap");
 Read("./classified_schemes/schemes_order11.gap");
+Read("./classified_schemes/schemes_order12.gap");
 
 Print("-----------------------------------\n");
 Print("Schemes of order 5:\n");
@@ -67,11 +68,20 @@ for i in [2..Length(as10)] do
   ComputeGoodPartitions(as10[i]);
 od;
 
-Print("-----------------------------------\n");
-Print("Schemes of order 11:\n");
-for i in [2..Length(as11)] do
-  Print("\nScheme No.");
-  Print(i);
-  Print(":");
-  ComputeGoodPartitions(as11[i]);
-od;
+# Print("-----------------------------------\n");
+# Print("Schemes of order 11:\n");
+# for i in [2..Length(as11)] do
+#   Print("\nScheme No.");
+#   Print(i);
+#   Print(":");
+#   ComputeGoodPartitions(as11[i]);
+# od;
+
+# Print("-----------------------------------\n");
+# Print("Schemes of order 12:\n");
+# for i in [2..Length(as12)] do
+#   Print("\nScheme No.");
+#   Print(i);
+#   Print(":");
+#   ComputeGoodPartitions(as12[i]);
+# od;
