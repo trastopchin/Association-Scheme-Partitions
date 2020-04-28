@@ -245,8 +245,9 @@ CreateAuxiliary := function(partition)
 end;
 
 # Given a partition sequence prev, produces the
-# next partition sequence in our ourdering of
-# the partition sequences
+# next partition sequence in our ordering of
+# the partition sequences. Returns fail if we
+# finished enumerating the partition sequences
 NextPartitionSequence := function(prev)
 	local aux, length, new, index;
 
@@ -275,7 +276,11 @@ NextPartitionSequence := function(prev)
 			index := index - 1;
 		od;
 		# increment the desired element
-		new[index] := new[index] + 1;
+		if index > 0 then
+			new[index] := new[index] + 1;
+		else
+			return fail;
+		fi;
 	fi;
 	return new;
 end;
@@ -304,23 +309,25 @@ end;
 # being the list of representatives of each equivalence class
 # of good partitions.
 ComputeGoodPartitions := function(R)
-	local n, jvectors, representatives, partition, partitions,representative, automorphisms, numGoodPartitions, previouslyDiscovered;
+	local n, currentSequence, jvectors, representatives, partition,representative, automorphisms, numGoodPartitions, previouslyDiscovered;
 	Newline();
 
 	n := OrderOfScheme(R);
 	numGoodPartitions := 0;
 
-  partitions := PartitionsSet([1..n]);
-
 	# the set of representatives of equivalence classes of good partitions
 	representatives := [];
 	automorphisms := AutomorphismGroupOfScheme(R);
 
-	# for partition in partitionIterator do
-	for partition in partitions do
+	# initialize our partition sequence
+  currentSequence := MyZeroVector(n);
+
+	# iterate through the partition sequences
+	while not(currentSequence = fail) do
+		partition := SequenceToPartition(currentSequence);
 		jvectors := PartitionToJVectors(partition, n);
 
-		# if a good partition
+		# if the partition is a good partition
 		if IsGoodPartition(R, jvectors) = true then
 			numGoodPartitions := numGoodPartitions + 1;
 			# if this is the first good partition, add it to the representatives
@@ -344,6 +351,9 @@ ComputeGoodPartitions := function(R)
 				fi;
 			fi;
 		fi;
+
+		# iterate to the next partition in the sequence
+		currentSequence := NextPartitionSequence(currentSequence);
 	od;
 	Print("Good Partitions: ");
 	Println(numGoodPartitions);

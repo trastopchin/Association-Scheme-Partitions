@@ -32,41 +32,41 @@ for i in [2..Length(as06)] do
   ComputeGoodPartitions(as06[i]);
 od;
 
-Print("-----------------------------------\n");
-Print("Schemes of order 7:\n");
-for i in [2..Length(as07)] do
-  Print("\nScheme No.");
-  Print(i);
-  Print(":");
-  ComputeGoodPartitions(as07[i]);
-od;
-
-Print("-----------------------------------\n");
-Print("Schemes of order 8:\n");
-for i in [2..Length(as08)] do
-  Print("\nScheme No.");
-  Print(i);
-  Print(":");
-  ComputeGoodPartitions(as08[i]);
-od;
-
-Print("-----------------------------------\n");
-Print("Schemes of order 9:\n");
-for i in [2..Length(as09)] do
-  Print("\nScheme No.");
-  Print(i);
-  Print(":");
-  ComputeGoodPartitions(as09[i]);
-od;
-
-Print("-----------------------------------\n");
-Print("Schemes of order 10:\n");
-for i in [2..Length(as10)] do
-  Print("\nScheme No.");
-  Print(i);
-  Print(":");
-  ComputeGoodPartitions(as10[i]);
-od;
+# Print("-----------------------------------\n");
+# Print("Schemes of order 7:\n");
+# for i in [2..Length(as07)] do
+#   Print("\nScheme No.");
+#   Print(i);
+#   Print(":");
+#   ComputeGoodPartitions(as07[i]);
+# od;
+#
+# Print("-----------------------------------\n");
+# Print("Schemes of order 8:\n");
+# for i in [2..Length(as08)] do
+#   Print("\nScheme No.");
+#   Print(i);
+#   Print(":");
+#   ComputeGoodPartitions(as08[i]);
+# od;
+#
+# Print("-----------------------------------\n");
+# Print("Schemes of order 9:\n");
+# for i in [2..Length(as09)] do
+#   Print("\nScheme No.");
+#   Print(i);
+#   Print(":");
+#   ComputeGoodPartitions(as09[i]);
+# od;
+#
+# Print("-----------------------------------\n");
+# Print("Schemes of order 10:\n");
+# for i in [2..Length(as10)] do
+#   Print("\nScheme No.");
+#   Print(i);
+#   Print(":");
+#   ComputeGoodPartitions(as10[i]);
+# od;
 
 # Print("-----------------------------------\n");
 # Print("Schemes of order 11:\n");
