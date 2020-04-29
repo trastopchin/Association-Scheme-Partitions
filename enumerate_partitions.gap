@@ -303,6 +303,40 @@ SequenceToPartition := function(seq)
 	return partition;
 end;
 
+# Turns a set of jvectors into a partition
+JVectorsToPartition := function(jvectors)
+	local jvector, n, index, partition, currentPart;
+	n := Length(jvectors[1]);
+	partition := [];
+	for jvector in jvectors do
+		currentPart := [];
+		for index in [1..n] do
+			if (jvector[index] = 1) then
+				Add(currentPart, index);
+			fi;
+		od;
+		Add(partition, currentPart);
+	od;
+	return partition;
+end;
+
+# Turns a partition back into a partition sequence
+PartitionToSequence := function(partition, n)
+  local sequence, part, index, count;
+	sequence := MyZeroVector(n);
+	count := 0;
+  for part in partition do
+		count := count + 1;
+		# we skip the first element bc it is a zero
+		# already made a zero by MyZeroVector
+		for index in [2..Length(part)] do
+      #skip first element somehow
+			sequence[part[index]] := count;
+		od;
+	od;
+	return sequence;
+end;
+
 # Computes good partitions of scheme R
 # Returns an output list with the first element being
 # the number of good partitions and the second element
@@ -360,4 +394,73 @@ ComputeGoodPartitions := function(R)
 	Print("Equivalence Classes: ");
 	Println(Length(representatives));
 	return [numGoodPartitions, representatives];
+end;
+
+# Computes good partitions of scheme R
+# Returns an output list with the first element being
+# the number of good partitions and the second element
+# being the list of representatives of each equivalence class
+# of good partitions.
+ComputeGoodPartitionsHash := function(R)
+	local j, l, equivalentJVectors, partitionSequence, equivalentPartition, auto, representativeIndex, goodPartitionTable, sampleObj, length, universeSize, hashtableRecord, n, currentSequence, jvectors, representatives, partition,representative, automorphisms, numGoodPartitions, previouslyDiscovered;
+	Newline();
+
+	n := OrderOfScheme(R);
+	numGoodPartitions := 0;
+
+	# the set of representatives of equivalence classes of good partitions
+	representativeIndex := 0;
+	representatives := [];
+	automorphisms := AutomorphismGroupOfScheme(R);
+
+	# initialize our partition sequence
+  currentSequence := MyZeroVector(n);
+
+	# create a good partition table
+	goodPartitionTable := HTCreate(currentSequence);
+
+	# iterate through the partition sequences
+	while not(currentSequence = fail) do
+		partition := SequenceToPartition(currentSequence);
+		jvectors := PartitionToJVectors(partition, n);
+
+		# if it's not in the table, is it good?
+		if HTValue(goodPartitionTable, currentSequence) = fail then
+
+			# if the partition is a good partition
+			if IsGoodPartition(R, jvectors) = true then
+
+				# add to our list of representatives
+				Add(representatives, jvectors);
+				representativeIndex := representativeIndex + 1;
+
+				# generate the entire equivalence class and add it to the table
+				l := [currentSequence];
+				for auto in automorphisms do
+					# apply each automorphism and add the new jvectors to the table
+					equivalentJVectors := PermutePartition(auto, jvectors);
+					# we turn the set of JVectors into a regular partition
+					equivalentPartition := JVectorsToPartition(equivalentJVectors);
+					# we sort the partition by its first element
+					Sort( equivalentPartition, function(v,w) return v[1] < w[1]; end );
+					# we turn the sorted partition back into the original sequence
+					partitionSequence := PartitionToSequence(equivalentPartition, n);
+					Add(l, partitionSequence);
+					#Println(partitionSequence);
+					HTAdd(goodPartitionTable, partitionSequence, representativeIndex);
+				od;
+				for j in l do
+					#Println(j);
+				od;
+				#Newline();
+				#Newline();
+			fi;
+
+		fi;
+		# iterate to the next partition in the sequence
+		currentSequence := NextPartitionSequence(currentSequence);
+	od;
+	Print("Equivalence Classes: ");
+	Println(Length(representatives));
+	# return representatives;
 end;
