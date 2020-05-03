@@ -1,10 +1,10 @@
 # Tal Rastopchin and Gabby Masini
-# April 21, 2020
+# May 3, 2020
 
-# Read("enumerate_partitions.gap");
+# Read("equitable_partitions.gap");
 
 # load Miyamoto and Hanaki's elementary functions for association schemes
-Read("./association_scheme.gap");
+Read("./hanaki_association_scheme.gap");
 
 # load Miyamoto and Hanaki's classified association schemes
 # as05 is a list of the schemes of order 5
@@ -15,6 +15,7 @@ Read("./classified_schemes/schemes_order08.gap");
 Read("./classified_schemes/schemes_order09.gap");
 Read("./classified_schemes/schemes_order10.gap");
 Read("./classified_schemes/schemes_order11.gap");
+Read("./classified_schemes/schemes_order12.gap");
 
 # prints a new line
 Newline := function()
@@ -28,12 +29,20 @@ Println := function(object)
 end;
 
 # prints out a matrix A with better formatting
-PrintMatrix := function(A)
-	local row;
-	for row in A do
-		Println(row);
+PrintMatrixToFile := function(file, A)
+	local i;
+	AppendTo(file, "[ ");
+	for i in [1..Length(A)] do
+		if not (i = 1) then
+			AppendTo(file, "  ");
+		fi;
+		AppendTo(file, A[i]);
+		if not(i = Length(A)) then
+			AppendTo(file, ",\n");
+	  else
+			AppendTo(file, " ]");
+		fi;
 	od;
-	Print("\n");
 end;
 
 # makes a zero vector of dimension n
@@ -118,11 +127,11 @@ ComputeCoefficients := function(sigma, j, basis)
 end;
 
 # Determines whether or not a specific partition is
-# a good partition of the given scheme. Does this by
+# a equitable partition of the given scheme. Does this by
 # performing an exhaustive search.
 # 	R, the relational matrix of our given scheme.
 # 	partition, the partition we are inspecting.
-IsGoodPartition := function(R, partition)
+IsequitablePartition := function(R, partition)
 	local basis, j, sigma, coefficients;
 	# create the vector space over the rationals with our partition basis
 	basis := VectorSpaceBasisFromPartition(partition);
@@ -337,19 +346,19 @@ PartitionToSequence := function(partition, n)
 	return sequence;
 end;
 
-# Computes good partitions of scheme R
+# Computes equitable partitions of scheme R
 # Returns an output list with the first element being
-# the number of good partitions and the second element
+# the number of equitable partitions and the second element
 # being the list of representatives of each equivalence class
-# of good partitions.
-ComputeGoodPartitions := function(R)
-	local n, currentSequence, jvectors, representatives, partition,representative, automorphisms, numGoodPartitions, previouslyDiscovered;
+# of equitable partitions.
+EquitablePartitions := function(R)
+	local n, currentSequence, jvectors, representatives, partition,representative, automorphisms, numequitablePartitions, previouslyDiscovered;
 	Newline();
 
 	n := OrderOfScheme(R);
-	numGoodPartitions := 0;
+	numequitablePartitions := 0;
 
-	# the set of representatives of equivalence classes of good partitions
+	# the set of representatives of equivalence classes of equitable partitions
 	representatives := [];
 	automorphisms := AutomorphismGroupOfScheme(R);
 
@@ -361,17 +370,17 @@ ComputeGoodPartitions := function(R)
 		partition := SequenceToPartition(currentSequence);
 		jvectors := PartitionToJVectors(partition, n);
 
-		# if the partition is a good partition
-		if IsGoodPartition(R, jvectors) = true then
-			numGoodPartitions := numGoodPartitions + 1;
-			# if this is the first good partition, add it to the representatives
+		# if the partition is a equitable partition
+		if IsequitablePartition(R, jvectors) = true then
+			numequitablePartitions := numequitablePartitions + 1;
+			# if this is the first equitable partition, add it to the representatives
 			if (Length(representatives) = 0) then
 				Add(representatives, jvectors);
 				# if not, determine if it was previously discovered
 			else
 				previouslyDiscovered := false;
 
-				# check if good partition is isomorphic to previously discovered good partitions
+				# check if equitable partition is isomorphic to previously discovered equitable partitions
 				for representative in representatives do
 					if IsIsomorphic(automorphisms, representative, jvectors) then
 						previouslyDiscovered := true;
@@ -389,26 +398,25 @@ ComputeGoodPartitions := function(R)
 		# iterate to the next partition in the sequence
 		currentSequence := NextPartitionSequence(currentSequence);
 	od;
-	Print("Good Partitions: ");
-	Println(numGoodPartitions);
-	Print("Equivalence Classes: ");
-	Println(Length(representatives));
-	return [numGoodPartitions, representatives];
+	# return the number of equitable partitions and the list of representatives
+	return [numequitablePartitions, representatives];
 end;
 
-# Computes good partitions of scheme R
+# Computes equitable partitions of scheme R
 # Returns an output list with the first element being
-# the number of good partitions and the second element
+# the number of equitable partitions and the second element
 # being the list of representatives of each equivalence class
-# of good partitions.
-ComputeGoodPartitionsHash := function(R)
-	local j, l, equivalentJVectors, partitionSequence, equivalentPartition, auto, representativeIndex, goodPartitionTable, sampleObj, length, universeSize, hashtableRecord, n, currentSequence, jvectors, representatives, partition,representative, automorphisms, numGoodPartitions, previouslyDiscovered;
+# of equitable partitions.
+# This does the same things as EquitablePartitions,
+# but it is faster and uses a bit more space
+EquitablePartitionsFast := function(R)
+	local added, j, l, equivalentJVectors, partitionSequence, equivalentPartition, auto, representativeIndex, equitablePartitionTable, sampleObj, length, universeSize, hashtableRecord, n, currentSequence, jvectors, representatives, partition,representative, automorphisms, numEquitablePartitions, previouslyDiscovered;
 	Newline();
 
 	n := OrderOfScheme(R);
-	numGoodPartitions := 0;
+	numEquitablePartitions := 0;
 
-	# the set of representatives of equivalence classes of good partitions
+	# the set of representatives of equivalence classes of equitable partitions
 	representativeIndex := 0;
 	representatives := [];
 	automorphisms := AutomorphismGroupOfScheme(R);
@@ -416,19 +424,19 @@ ComputeGoodPartitionsHash := function(R)
 	# initialize our partition sequence
   currentSequence := MyZeroVector(n);
 
-	# create a good partition table
-	goodPartitionTable := HTCreate(currentSequence);
+	# create a equitable partition table
+	equitablePartitionTable := HTCreate(currentSequence);
 
 	# iterate through the partition sequences
 	while not(currentSequence = fail) do
 		partition := SequenceToPartition(currentSequence);
 		jvectors := PartitionToJVectors(partition, n);
 
-		# if it's not in the table, is it good?
-		if HTValue(goodPartitionTable, currentSequence) = fail then
+		# if it's not in the table, is it equitable?
+		if HTValue(equitablePartitionTable, currentSequence) = fail then
 
-			# if the partition is a good partition
-			if IsGoodPartition(R, jvectors) = true then
+			# if the partition is a equitable partition
+			if IsequitablePartition(R, jvectors) = true then
 
 				# add to our list of representatives
 				Add(representatives, jvectors);
@@ -447,20 +455,88 @@ ComputeGoodPartitionsHash := function(R)
 					partitionSequence := PartitionToSequence(equivalentPartition, n);
 					Add(l, partitionSequence);
 					#Println(partitionSequence);
-					HTAdd(goodPartitionTable, partitionSequence, representativeIndex);
+					added := HTAdd(equitablePartitionTable, partitionSequence, representativeIndex);
+					# if we added a new equitable partition, increase the count
+					if not(added = fail) then
+						numEquitablePartitions := numEquitablePartitions + 1;
+					fi;
 				od;
-				for j in l do
-					#Println(j);
-				od;
-				#Newline();
-				#Newline();
 			fi;
-
 		fi;
 		# iterate to the next partition in the sequence
 		currentSequence := NextPartitionSequence(currentSequence);
 	od;
-	Print("Equivalence Classes: ");
-	Println(Length(representatives));
-	# return representatives;
+	# return the number of equitable partitions and the list of representatives
+	return [numEquitablePartitions, representatives];
 end;
+
+# Given the output from EquitablePartitions(), prints the
+# computed number of equitable partitions, the computed number
+# of equivalence classes of equitable partitions, and prints
+# a representative of each equivalence class.
+# Using "*stdout*" for file prints to the terminal
+# Mainly used as a helper function, but you can use it for
+# more specific file output
+PrintEquitablePartitionsToFile := function(file, output)
+	local i;
+	AppendTo(file, "----------------------------------------\n");
+	AppendTo(file, "# Number of Equitable Partitions: ");
+	AppendTo(file, output[1]);
+	AppendTo(file, "\n");
+	AppendTo(file, "# Number of Equivalence Classes: ");
+	AppendTo(file, Length(output[2]));
+	AppendTo(file, "\n");
+  AppendTo(file, "[ \n");
+	for i in [1..Length(output[2])] do
+		AppendTo(file, "\n# No. ");
+		AppendTo(file, i);
+		AppendTo(file, "\n");
+		PrintMatrixToFile(file, TransposedMat(output[2][i]));
+		if not(i = Length(output[2])) then
+			AppendTo(file, ",\n");
+		fi;
+	od;
+	AppendTo(file, "\n]\n");
+end;
+
+# Logs the equitable partitions of a specific scheme R to file
+LogPartitionsScheme := function(file, R)
+	PrintEquitablePartitionsToFile(file, EquitablePartitionsFast(R));
+end;
+
+# Logs the equitable partitions of list of schemes to file
+LogPartitionsSchemeList := function(file, schemes)
+	local scheme;
+	for scheme in schemes do
+		PrintEquitablePartitionsToFile(file, EquitablePartitionsFast(scheme));
+	od;
+end;
+
+# Given a scheme R, print to the terminal the output of running
+# the EquitablePartitions algorithm.
+PrintPartitionsScheme := function(R)
+	LogPartitionsScheme("*stdout*", R);
+end;
+
+# Given a list of schemes, print to the terminal the output of running
+# the EquitablePartitions algorithm on each scheme
+PrintPartitionsSchemeList := function(schemes)
+	LogPartitionsSchemeList("*stdout*", schemes);
+end;
+
+CreateLogPartitionsScheme := function(filename, scheme)
+	local dc, stream;
+	dc := DirectoryCurrent();
+	stream := Filename(dc, filename);
+	LogPartitionsScheme(stream, scheme);
+end;
+
+CreateLogPartitionsSchemeList := function(filename, schemes)
+	local dc, stream;
+	dc := DirectoryCurrent();
+	stream := Filename(dc, filename);
+	LogPartitionsSchemeList(stream, schemes);
+end;
+
+
+# ii. Calculate orbit of a given good partition
