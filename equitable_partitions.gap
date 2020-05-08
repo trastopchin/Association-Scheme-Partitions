@@ -1,5 +1,5 @@
 # Tal Rastopchin and Gabby Masini
-# May 5, 2020
+# May 8, 2020
 
 # Read("equitable_partitions.gap");
 
@@ -46,7 +46,6 @@ PrintMatrixToFile := function(file, A)
 end;
 
 # makes a zero vector of dimension n
-# TODO: can we do this in constant time?
 MyZeroVector := function (n)
   local zeroVector, i;
   zeroVector := [];
@@ -105,41 +104,41 @@ GroupToScheme := function(G)
 	fi;
 end;
 
-# Creates a basis for the module given a partition.
-# 	partition, the set of partition vectors of the all
+# Creates a basis for the module given a set of jvectors.
+# 	jvectors, the set of partition vectors of the all
 #			one vector of length n.
-VectorSpaceBasisFromPartition := function(partition)
+VectorSpaceBasisFromPartition := function(jvectors)
 	local V, basis;
-	V := VectorSpace(Rationals, partition);
-	basis := Basis(V, partition);
+	V := VectorSpace(Rationals, jvectors);
+	basis := Basis(V, jvectors);
 	return basis;
 end;
 
-# Computes the coefficients of a vector sigma * j
-# in terms of the basis.
+# Computes the coefficients of a vector sigma * jvector
+# in terms of the basis. If the vector sigma * jvector does
+# not lie in the vector space defined by the basis V,
+# returns fail.
 # 	sigma, an n x n adjacency matrix of a scheme R
-#		j, a length n vector of the partition basis
+#		jvector, a length n vector of the partition basis
 #		basis, the partition basis of our vector space (module?)
-ComputeCoefficients := function(sigma, j, basis)
-	local result;
-	result := sigma * j;
-	return Coefficients(basis, result);
+ComputeCoefficients := function(sigma, jvector, basis)
+	return Coefficients(basis, sigma * jvector);
 end;
 
-# Determines whether or not a specific partition is
-# a equitable partition of the given scheme. Does this by
+# Determines whether or not a specific set of jvectors is
+# an equitable partition of the given scheme. Does this by
 # performing an exhaustive search.
 # 	R, the relational matrix of our given scheme.
-# 	partition, the partition we are inspecting.
-IsequitablePartition := function(R, partition)
-	local basis, j, sigma, coefficients;
+# 	jvectors, the partition we are inspecting.
+IsEquitablePartition := function(R, jvectors)
+	local basis, jvector, sigma, coefficients;
 	# create the vector space over the rationals with our partition basis
-	basis := VectorSpaceBasisFromPartition(partition);
-	for j in partition do
+	basis := VectorSpaceBasisFromPartition(jvectors);
+	for jvector in jvectors do
 		for sigma in AdjacencyMatrices(R) do
-			# we compute the coefficients of sigma * j in terms of basis
-			coefficients := ComputeCoefficients(sigma, j, basis);
-
+			# we compute the coefficients of sigma * jvector in terms of basis
+			coefficients := ComputeCoefficients(sigma, jvector, basis);
+			# if coefficients don't exist, then return false
 			if coefficients = fail then
 				return false;
 			fi;
@@ -148,69 +147,70 @@ IsequitablePartition := function(R, partition)
 	return true;
 end;
 
-# Applies a permutation to a partition j vector
+# Applies a permutation to a jvector
 #		permutation, our input permutation
-#		part, the j vector we are permuting
-PermutePart := function(permutation, part)
+#		jvector, the j vector we are permuting
+PermuteJVector := function(permutation, jvector)
 	local result, i;
-	result := ShallowCopy(part);
-	for i in [1..Length(part)] do
+	# duplicate jvector so we can edit it and create the permuted jvector
+	result := ShallowCopy(jvector);
+	for i in [1..Length(jvector)] do
 		# i gets mapped to permuation applied to i
-		result[i^permutation] := part[i];
+		result[i^permutation] := jvector[i];
 	od;
 	return result;
 end;
 
-# Returns true if and only if partition1 and partition2 are
+# Returns true if and only if jvectors1 and jvectors2 are
 # equivalent under the given automorphism
-CheckEquivalent := function(automorphism, partition1, partition2)
-	local part, permuted;
-	# if every part of partition1 gets sent to a part belonging to
-	# partition2 by the automorphism, then partion1 must be equivalent
-	# to partion2.
-	for part in partition1 do
-		permuted := PermutePart(automorphism, part);
-		if not(permuted in partition2) then
+CheckEquivalent := function(automorphism, jvectors1, jvectors2)
+	local jvector, permuted;
+	# if every jvector of jvectors1 gets sent to a jvector belonging to
+	# jvectors2 by the automorphism, then jvectors1 must be equivalent
+	# to jvectors2.
+	for jvector in jvectors1 do
+		permuted := PermuteJVector(automorphism, jvector);
+		if not(permuted in jvectors2) then
 			return false;
 		fi;
   od;
 	return true;
 end;
 
-# Returns true if and only if partition1 and partition2 are
+# Returns true if and only if jvectors1 and jvectors2 are
 # equivalent under the given automorphism group, autoGroup
-IsIsomorphic := function(autoGroup, partition1, partition2)
+IsIsomorphic := function(autoGroup, jvectors1, jvectors2)
 	local auto;
-	# make sure partitions have same cardinality
-	if not(Length(partition1) = Length(partition2)) then
+	# make sure jvectors have same cardinality
+	if not(Length(jvectors1) = Length(jvectors2)) then
 		return false;
 	fi;
 	for auto in autoGroup do
-		if CheckEquivalent(auto, partition1, partition2) then
+		if CheckEquivalent(auto, jvectors1, jvectors2) then
 			return true;
 		fi;
 	od;
-	# if every automorphism does not send partition1 to partition2,
+	# if every automorphism does not send jvectors1 to jvectors2,
 	# then they are not isomorphic
 	return false;
 end;
 
-# Applies a permutation to every j vector of a partition
+# Applies a permutation to every jvector of a partition
 #		permutation, our input permutation
-#		partition, the partition we are permuting
-PermutePartition := function (permutation, partition)
+#		jvectors, the set of jvectors we are permuting
+PermuteJVectors := function (permutation, jvectors)
   local result, i;
 	result := [];
-	for i in [1..Length(partition)] do
-		Add(result, PermutePart(permutation, partition[i]));
+	for i in [1..Length(jvectors)] do
+		Add(result, PermuteJVector(permutation, jvectors[i]));
 	od;
 	return result;
 end;
 
 # Converts a partitions of integers [1..n] to
-# a set of j vectors of length n of 1s and 0s
+# a set of jvectors of length n of 1s and 0s
 # depending on the indices indicated by the partition
-# returns a set of j vectors based on partition
+# returns a set of jvectors based on partition
 PartitionToJVectors := function(partition, n)
 	local jvectors, part, element, jvector;
 	jvectors := [];
@@ -234,16 +234,16 @@ PartitionToJVectors := function(partition, n)
 end;
 
 # Creates the auxiliary array for a given
-# partition number array. The ith component of the
-# array corresponds to how many zeroes preceed
-# the ith compnent in the array.
-CreateAuxiliary := function(partition)
+# partition sequence. The ith component of the
+# auxiliary array corresponds to how many zeroes preceed
+# the ith component in the array.
+CreateAuxiliary := function(partitionSequence)
 	local i, aux, val;
 	# local variables
 	aux := [];
 	val := 0;
-	# iterate through the partition, creating the auxiliary
-	for i in partition do
+	# iterate through the sequence, creating the auxiliary
+	for i in partitionSequence do
 		Add(aux, val);
 		# when we encounter a zero, set the appropriate value
 		if i = 0 then
@@ -256,7 +256,7 @@ end;
 # Given a partition sequence prev, produces the
 # next partition sequence in our ordering of
 # the partition sequences. Returns fail if we
-# finished enumerating the partition sequences
+# finished enumerating the partition sequences.
 NextPartitionSequence := function(prev)
 	local aux, length, new, index;
 
@@ -313,23 +313,32 @@ SequenceToPartition := function(seq)
 end;
 
 # Turns a set of jvectors into a partition
+# The resulting partition is NOT necesarrily sorted
+# by the first element of each part.
 JVectorsToPartition := function(jvectors)
 	local jvector, n, index, partition, currentPart;
+	# figure out the size of the universe
 	n := Length(jvectors[1]);
 	partition := [];
+	# iterate over each jvector
 	for jvector in jvectors do
 		currentPart := [];
+		# create the parts of the partition (each jvector becomes a part)
 		for index in [1..n] do
 			if (jvector[index] = 1) then
 				Add(currentPart, index);
 			fi;
 		od;
+		# add the created part to the partition
 		Add(partition, currentPart);
 	od;
 	return partition;
 end;
 
 # Turns a partition back into a partition sequence
+# For the correct sequence to be output,
+# the partition must be sorted by the first element
+# of each part.
 PartitionToSequence := function(partition, n)
   local sequence, part, index, count;
 	sequence := MyZeroVector(n);
@@ -364,11 +373,10 @@ end;
 # being the list of representatives of each equivalence class
 # of equitable partitions.
 EquitablePartitions := function(R)
-	local n, currentSequence, jvectors, representatives, partition,representative, automorphisms, numequitablePartitions, previouslyDiscovered;
-
+	local n, currentSequence, jvectors, representatives, partition, representative, automorphisms, numEquitablePartitions, previouslyDiscovered;
 
 	n := OrderOfScheme(R);
-	numequitablePartitions := 0;
+	numEquitablePartitions := 0;
 
 	# the set of representatives of equivalence classes of equitable partitions
 	representatives := [];
@@ -379,12 +387,13 @@ EquitablePartitions := function(R)
 
 	# iterate through the partition sequences
 	while not(currentSequence = fail) do
+		# transform the current partition sequence into a set of jvectors
 		partition := SequenceToPartition(currentSequence);
 		jvectors := PartitionToJVectors(partition, n);
 
 		# if the partition is a equitable partition
-		if IsequitablePartition(R, jvectors) = true then
-			numequitablePartitions := numequitablePartitions + 1;
+		if IsEquitablePartition(R, jvectors) = true then
+			numEquitablePartitions := numEquitablePartitions + 1;
 			# if this is the first equitable partition, add it to the representatives
 			if (Length(representatives) = 0) then
 				Add(representatives, jvectors);
@@ -411,7 +420,7 @@ EquitablePartitions := function(R)
 		currentSequence := NextPartitionSequence(currentSequence);
 	od;
 	# return the number of equitable partitions and the list of representatives
-	return [numequitablePartitions, representatives];
+	return [numEquitablePartitions, representatives];
 end;
 
 # Computes equitable partitions of scheme R
@@ -420,9 +429,12 @@ end;
 # being the list of representatives of each equivalence class
 # of equitable partitions.
 # This does the same things as EquitablePartitions,
-# but it is faster and uses a bit more space
+# but it is faster and uses a bit more space. (The accompanying paper
+# explains this algorithm more deeply).
 EquitablePartitionsFast := function(R)
-	local added, j, l, equivalentJVectors, partitionSequence, equivalentPartition, auto, representativeIndex, equitablePartitionTable, sampleObj, length, universeSize, hashtableRecord, n, currentSequence, jvectors, representatives, partition,representative, automorphisms, numEquitablePartitions, previouslyDiscovered;
+	local added, equivalentJVectors, partitionSequence, auto, representativeIndex, equitablePartitionTable, n, currentSequence, jvectors, representatives, partition, automorphisms, numEquitablePartitions;
+
+	# determine n
 	n := OrderOfScheme(R);
 	numEquitablePartitions := 0;
 
@@ -434,7 +446,7 @@ EquitablePartitionsFast := function(R)
 	# initialize our partition sequence
   currentSequence := MyZeroVector(n);
 
-	# create a equitable partition table
+	# create a equitable partition table with currentSequence as the sample object
 	equitablePartitionTable := HTCreate(currentSequence);
 
 	# iterate through the partition sequences
@@ -446,7 +458,7 @@ EquitablePartitionsFast := function(R)
 		if HTValue(equitablePartitionTable, currentSequence) = fail then
 
 			# if the partition is a equitable partition
-			if IsequitablePartition(R, jvectors) = true then
+			if IsEquitablePartition(R, jvectors) = true then
 
 				# add to our list of representatives
 				Add(representatives, jvectors);
@@ -455,7 +467,7 @@ EquitablePartitionsFast := function(R)
 				# generate the entire equivalence class and add it to the table
 				for auto in automorphisms do
 					# apply the automorphism to get a set of equivalent jvectors
-					equivalentJVectors := PermutePartition(auto, jvectors);
+					equivalentJVectors := PermuteJVectors(auto, jvectors);
 					# turn the equivalent jvectors into its corresponding partition sequence
 					partitionSequence := JVectorsToSequence(equivalentJVectors);
 					# add this partition sequence to the table
@@ -475,8 +487,8 @@ EquitablePartitionsFast := function(R)
 end;
 
 # Given a scheme and an equitable partition of that scheme, return
-# a list of the entire equivalence class of that equitable partition
-# jvectors is assumed to be an equitable partition of that scheme
+# a list of the entire equivalence class of that equitable partition.
+# jvectors is assumed to be an equitable partition of that scheme.
 ComputeIsomorphicPartitions := function(scheme, jvectors)
 	local auto, automorphisms, equivalentJVectors, exampleSequence, partitionTable, partitionSequence, equivalenceClass, added;
 
@@ -490,12 +502,12 @@ ComputeIsomorphicPartitions := function(scheme, jvectors)
 	partitionTable := HTCreate(exampleSequence);
 
 	# create our empty equivalence class
-  equivalenceClass :=[];
+  equivalenceClass := [];
 
 	# recall the first automorphism is always the identity automorphism
 	for auto in automorphisms do
 		# apply the automorphism to get a set of equivalent jvectors
-		equivalentJVectors := PermutePartition(auto, jvectors);
+		equivalentJVectors := PermuteJVectors(auto, jvectors);
 		# turn the equivalent jvectors into its corresponding partition sequence
 		partitionSequence := JVectorsToSequence(equivalentJVectors);
 		# add this partition sequence to the table
@@ -602,7 +614,3 @@ CreateLogPartitionsSchemeList := function(filename, schemes, schemesName)
 	stream := Filename(dc, filename);
 	LogPartitionsSchemeList(stream, schemes, schemesName);
 end;
-
-# TODO
-# Write the examples
-# Start working on paper
