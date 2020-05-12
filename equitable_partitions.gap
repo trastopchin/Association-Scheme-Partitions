@@ -17,33 +17,8 @@ Read("./classified_schemes/schemes_order10.gap");
 Read("./classified_schemes/schemes_order11.gap");
 Read("./classified_schemes/schemes_order12.gap");
 
-# prints a new line
-Newline := function()
-	Print("\n");
-end;
 
-# prints an object with a new line
-Println := function(object)
-	Print(object);
-  Print("\n");
-end;
 
-# prints out a matrix A with better formatting
-PrintMatrixToFile := function(file, A)
-	local i;
-	AppendTo(file, "[ ");
-	for i in [1..Length(A)] do
-		if not (i = 1) then
-			AppendTo(file, "  ");
-		fi;
-		AppendTo(file, A[i]);
-		if not(i = Length(A)) then
-			AppendTo(file, ",\n");
-	  else
-			AppendTo(file, " ]");
-		fi;
-	od;
-end;
 
 # makes a zero vector of dimension n
 MyZeroVector := function (n)
@@ -520,6 +495,26 @@ ComputeIsomorphicPartitions := function(scheme, jvectors)
 	return equivalenceClass;
 end;
 
+
+
+# prints out a matrix A with better formatting
+PrintMatrixToFile := function(file, A)
+	local i;
+	AppendTo(file, "[ ");
+	for i in [1..Length(A)] do
+		if not (i = 1) then
+			AppendTo(file, "  ");
+		fi;
+		AppendTo(file, A[i]);
+		if not(i = Length(A)) then
+			AppendTo(file, ",\n");
+	  else
+			AppendTo(file, " ]");
+		fi;
+	od;
+end;
+
+
 # Given the output from EquitablePartitions(), prints the
 # computed number of equitable partitions, the computed number
 # of equivalence classes of equitable partitions, and prints
@@ -528,6 +523,8 @@ end;
 # is easier when they are read back in to GAP.
 # schemeName is the name of the variable containing the list of
 # good partitions.
+# file represents the file name as a string that is either created if
+# it doesn't exist or appended to if it does
 # Using "*stdout*" for file prints to the terminal
 # Mainly used as a helper function, but you can use it for
 # more specific file output
@@ -559,14 +556,14 @@ end;
 
 # Logs the equitable partitions of a specific scheme R to file
 # schemeName is the name of the variable containing the list of
-# good partitions.
+# good partitions. If file does not yet exist, it is created.
 LogPartitionsScheme := function(file, R, schemeName)
 	PrintEquitablePartitionsToFile(file, EquitablePartitionsFast(R), schemeName);
 end;
 
 # Logs the equitable partitions of list of schemes to file
 # schemessName is the name of the prefix for each variable containing
-# the list of good partitions.
+# the list of good partitions. If file does not yet exist, it is created.
 LogPartitionsSchemeList := function(file, schemes, schemesName)
 	local scheme, count, schemeName;
 	count := 0;
@@ -589,28 +586,4 @@ end;
 # the list of good partitions.
 PrintPartitionsSchemeList := function(schemes, schemesName)
 	LogPartitionsSchemeList("*stdout*", schemes, schemesName);
-end;
-
-# Logs the equitable partitions of a scheme to filename
-# It creats the file with the name filename if the file does not exist;
-# otherwise, it appends to the file.
-# schemeName is the name of the variable containing the list of
-# good partitions.
-CreateLogPartitionsScheme := function(filename, scheme, schemeName)
-	local dc, stream;
-	dc := DirectoryCurrent();
-	stream := Filename(dc, filename);
-	LogPartitionsScheme(stream, scheme, schemeName);
-end;
-
-# Logs the equitable partitions of a scheme to filename
-# It creats the file with the name filename if the file does not exist;
-# otherwise, it appends to the file.
-# schemesName is the name of the prefix for each variable containing
-# the list of good partitions.
-CreateLogPartitionsSchemeList := function(filename, schemes, schemesName)
-	local dc, stream;
-	dc := DirectoryCurrent();
-	stream := Filename(dc, filename);
-	LogPartitionsSchemeList(stream, schemes, schemesName);
 end;
