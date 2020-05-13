@@ -17,9 +17,6 @@ Read("./classified_schemes/schemes_order10.gap");
 Read("./classified_schemes/schemes_order11.gap");
 Read("./classified_schemes/schemes_order12.gap");
 
-
-
-
 # makes a zero vector of dimension n
 MyZeroVector := function (n)
   local zeroVector, i;
@@ -495,8 +492,6 @@ ComputeIsomorphicPartitions := function(scheme, jvectors)
 	return equivalenceClass;
 end;
 
-
-
 # prints out a matrix A with better formatting
 PrintMatrixToFile := function(file, A)
 	local i;
@@ -513,7 +508,6 @@ PrintMatrixToFile := function(file, A)
 		fi;
 	od;
 end;
-
 
 # Given the output from EquitablePartitions(), prints the
 # computed number of equitable partitions, the computed number
