@@ -6,16 +6,24 @@ This project is comprised of the code that we wrote and the paper we wrote about
 
 ## How to use
 
-To use this project, you must first install the latest version of [GAP](https://www.gap-system.org/). Once you clone this repository
+To use this project, you must first install the latest version of [GAP](https://www.gap-system.org/). Once you clone this repository, all you need to do is start a GAP session in that directory and read in the file with the command `Read("equitable_partitions.gap");` Then, you have access to each of the methods and algorithms that we have written. For more extensive documentation and explanation about each of the algorithms (other than the in-line documentation), consult the methods section of the [paper](link-to-paper) we wrote about this project.
 
 ## Implementation Details
 
-* bullet 1
+* The methods written (IsIsomorphic, IsEquitablePartition, EquitablePartitions and EquitablePartitionsFast) all rely on exhaustive searches.
 
-* bullet 2
+* EquitablePartitionsFast is implemented using a hash table in an attempt to speed it up and
+not rely on the exhaustive IsIsomorphic and IsEquitablePartition as much.
+
+* More details can be found in the paper linked above.
 
 ## Built With
 
 * [GAP](https://www.gap-system.org/) - GAP - Groups, Algorithms, Programming -
 a System for Computational Discrete Algebra
 * [Classification of Association Schemes](http://math.shinshu-u.ac.jp/~hanaki/as/) - Miyamoto and Hanaki's classification of association schemes
+
+## Authors
+
+* **Gabby Masini** - [GitHub](https://github.com/masiniga)
+* **Tal Rastopchin** - [GitHub](https://github.com/trastopchin)

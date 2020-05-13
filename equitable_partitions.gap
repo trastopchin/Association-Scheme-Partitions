@@ -1,7 +1,5 @@
 # Tal Rastopchin and Gabby Masini
-# May 8, 2020
-
-# Read("equitable_partitions.gap");
+# May 13, 2020
 
 # load Miyamoto and Hanaki's elementary functions for association schemes
 Read("./hanaki_association_scheme.gap");
