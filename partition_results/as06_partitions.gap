@@ -1,10 +1,14 @@
+# for i in [2..Length(as06)] do
+#   LogPartitionsScheme("./partition_results/as06_partitions.gap", as06[i], Concatenation("as06_", String(i)));
+# od;
+
 #----------------------------------------
-#Scheme name: 
-as06_2 := 
+#Scheme name:
+as06_2 :=
 
 # Number of Equitable Partitions: 31
 # Number of Equivalence Classes: 10
-[ 
+[
 
 # No. 1
 [ [ 1, 0, 0, 0, 0, 0 ],
@@ -60,12 +64,12 @@ as06_2 :=
 [ [ 1, 1, 1, 1, 1, 1 ] ]
 ];
 #----------------------------------------
-#Scheme name: 
-as06_3 := 
+#Scheme name:
+as06_3 :=
 
 # Number of Equitable Partitions: 41
 # Number of Equivalence Classes: 9
-[ 
+[
 
 # No. 1
 [ [ 1, 0, 0, 0, 0, 0 ],
@@ -116,12 +120,12 @@ as06_3 :=
 [ [ 1, 1, 1, 1, 1, 1 ] ]
 ];
 #----------------------------------------
-#Scheme name: 
-as06_4 := 
+#Scheme name:
+as06_4 :=
 
 # Number of Equitable Partitions: 8
 # Number of Equivalence Classes: 5
-[ 
+[
 
 # No. 1
 [ [ 1, 0, 0, 0, 0, 0 ],
@@ -150,12 +154,12 @@ as06_4 :=
 [ [ 1, 1, 1, 1, 1, 1 ] ]
 ];
 #----------------------------------------
-#Scheme name: 
-as06_5 := 
+#Scheme name:
+as06_5 :=
 
 # Number of Equitable Partitions: 13
 # Number of Equivalence Classes: 7
-[ 
+[
 
 # No. 1
 [ [ 1, 0, 0, 0, 0, 0 ],
@@ -193,12 +197,12 @@ as06_5 :=
 [ [ 1, 1, 1, 1, 1, 1 ] ]
 ];
 #----------------------------------------
-#Scheme name: 
-as06_6 := 
+#Scheme name:
+as06_6 :=
 
 # Number of Equitable Partitions: 13
 # Number of Equivalence Classes: 6
-[ 
+[
 
 # No. 1
 [ [ 1, 0, 0, 0, 0, 0 ],

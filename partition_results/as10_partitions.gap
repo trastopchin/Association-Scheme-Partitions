@@ -1,10 +1,14 @@
+# for i in [2..Length(as10)] do
+#   LogPartitionsScheme("./partition_results/as10_partitions.gap", as10[i], Concatenation("as10_", String(i)));
+# od;
+
 #----------------------------------------
-#Scheme name: 
-as10_2 := 
+#Scheme name:
+as10_2 :=
 
 # Number of Equitable Partitions: 999
 # Number of Equivalence Classes: 36
-[ 
+[
 
 # No. 1
 [ [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -253,12 +257,12 @@ as10_2 :=
 [ [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ] ]
 ];
 #----------------------------------------
-#Scheme name: 
-as10_3 := 
+#Scheme name:
+as10_3 :=
 
 # Number of Equitable Partitions: 93
 # Number of Equivalence Classes: 11
-[ 
+[
 
 # No. 1
 [ [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -330,12 +334,12 @@ as10_3 :=
 [ [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ] ]
 ];
 #----------------------------------------
-#Scheme name: 
-as10_4 := 
+#Scheme name:
+as10_4 :=
 
 # Number of Equitable Partitions: 4200
 # Number of Equivalence Classes: 35
-[ 
+[
 
 # No. 1
 [ [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -588,12 +592,12 @@ as10_4 :=
 [ [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ] ]
 ];
 #----------------------------------------
-#Scheme name: 
-as10_5 := 
+#Scheme name:
+as10_5 :=
 
 # Number of Equitable Partitions: 139
 # Number of Equivalence Classes: 18
-[ 
+[
 
 # No. 1
 [ [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -731,12 +735,12 @@ as10_5 :=
 [ [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ] ]
 ];
 #----------------------------------------
-#Scheme name: 
-as10_6 := 
+#Scheme name:
+as10_6 :=
 
 # Number of Equitable Partitions: 184
 # Number of Equivalence Classes: 19
-[ 
+[
 
 # No. 1
 [ [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -857,12 +861,12 @@ as10_6 :=
 [ [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ] ]
 ];
 #----------------------------------------
-#Scheme name: 
-as10_7 := 
+#Scheme name:
+as10_7 :=
 
 # Number of Equitable Partitions: 85
 # Number of Equivalence Classes: 9
-[ 
+[
 
 # No. 1
 [ [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -928,12 +932,12 @@ as10_7 :=
 [ [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ] ]
 ];
 #----------------------------------------
-#Scheme name: 
-as10_8 := 
+#Scheme name:
+as10_8 :=
 
 # Number of Equitable Partitions: 10
 # Number of Equivalence Classes: 5
-[ 
+[
 
 # No. 1
 [ [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -970,12 +974,12 @@ as10_8 :=
 [ [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ] ]
 ];
 #----------------------------------------
-#Scheme name: 
-as10_9 := 
+#Scheme name:
+as10_9 :=
 
 # Number of Equitable Partitions: 19
 # Number of Equivalence Classes: 7
-[ 
+[
 
 # No. 1
 [ [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -1024,12 +1028,12 @@ as10_9 :=
 [ [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ] ]
 ];
 #----------------------------------------
-#Scheme name: 
-as10_10 := 
+#Scheme name:
+as10_10 :=
 
 # Number of Equitable Partitions: 13
 # Number of Equivalence Classes: 5
-[ 
+[
 
 # No. 1
 [ [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -1064,12 +1068,12 @@ as10_10 :=
 [ [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ] ]
 ];
 #----------------------------------------
-#Scheme name: 
-as10_11 := 
+#Scheme name:
+as10_11 :=
 
 # Number of Equitable Partitions: 49
 # Number of Equivalence Classes: 10
-[ 
+[
 
 # No. 1
 [ [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],

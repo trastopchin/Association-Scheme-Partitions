@@ -1,10 +1,14 @@
+# for i in [2..Length(as07)] do
+#   LogPartitionsScheme("./partition_results/as07_partitions.gap", as07[i], Concatenation("as07_", String(i)));
+# od;
+
 #----------------------------------------
-#Scheme name: 
-as07_2 := 
+#Scheme name:
+as07_2 :=
 
 # Number of Equitable Partitions: 9
 # Number of Equivalence Classes: 3
-[ 
+[
 
 # No. 1
 [ [ 1, 0, 0, 0, 0, 0, 0 ],
@@ -24,12 +28,12 @@ as07_2 :=
 [ [ 1, 1, 1, 1, 1, 1, 1 ] ]
 ];
 #----------------------------------------
-#Scheme name: 
-as07_3 := 
+#Scheme name:
+as07_3 :=
 
 # Number of Equitable Partitions: 9
 # Number of Equivalence Classes: 3
-[ 
+[
 
 # No. 1
 [ [ 1, 0, 0, 0, 0, 0, 0 ],
