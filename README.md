@@ -8,7 +8,7 @@ This project uses GAP to compute equitable partitions of association schemes. Th
 
 This project is comprised of the code that we wrote and the paper we wrote about the project. All of the code that we wrote is in the [equitable_partitions.gap](https://github.com/trastopchin/Association-Scheme-Partitions/blob/master/equitable_partitions.gap) file, where we wrote helper methods and algorithms to compute and log equitable partitions of association schemes. The [paper](https://github.com/trastopchin/Association-Scheme-Partitions/blob/master/AlgGraphTheoryGoodPartitions.pdf) we wrote gives some mathematical background on association schemes and equitable partitions, details our programming conventions, documents our methods, and explains our algorithms.
 
-**Important note:** When we ran our code on schemes of order greater than or equal to 12, the hash table implementation we relied ran into storage errors. Specifically,
+**Important note:** When we ran our code on schemes of order greater than or equal to 12, the hash table implementation we relied on ran into storage errors. Specifically,
 "Panic: Gasman found a bogus header." Theoretically, the EquitablePartitionsFast method should be faster than the EquitablePartitions method; however, in order to use it on larger schemes one would need to use a different hash table implementation. We have print methods that use both versions of the function.
 
 ## How to use
