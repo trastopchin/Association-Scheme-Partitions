@@ -550,7 +550,7 @@ end;
 # schemeName is the name of the variable containing the list of
 # good partitions. If file does not yet exist, it is created.
 LogPartitionsScheme := function(file, R, schemeName)
-	PrintEquitablePartitionsToFile(file, EquitablePartitionsFast(R), schemeName);
+	PrintEquitablePartitionsToFile(file, EquitablePartitions(R), schemeName);
 end;
 
 # Logs the equitable partitions of list of schemes to file
@@ -578,4 +578,41 @@ end;
 # the list of good partitions.
 PrintPartitionsSchemeList := function(schemes, schemesName)
 	LogPartitionsSchemeList("*stdout*", schemes, schemesName);
+end;
+
+
+# for under order 12; consult README.md for using these methods on larger schemes
+
+# Logs the equitable partitions of a specific scheme R to file
+# schemeName is the name of the variable containing the list of
+# good partitions. If file does not yet exist, it is created.
+LogPartitionsSchemeFast := function(file, R, schemeName)
+	PrintEquitablePartitionsToFile(file, EquitablePartitionsFast(R), schemeName);
+end;
+
+# Logs the equitable partitions of list of schemes to file
+# schemessName is the name of the prefix for each variable containing
+# the list of good partitions. If file does not yet exist, it is created.
+LogPartitionsSchemeListFast := function(file, schemes, schemesName)
+	local scheme, count, schemeName;
+	count := 0;
+	for scheme in schemes do
+		count := count+1;
+		schemeName := Concatenation(schemesName, "No", String(count));
+		LogPartitionsSchemeFast(file, scheme, schemeName);
+	od;
+end;
+
+# Given a scheme R, print to the terminal the output of running
+# the EquitablePartitions algorithm.
+PrintPartitionsSchemeFast := function(R, schemeName)
+	LogPartitionsSchemeFast("*stdout*", R, schemeName);
+end;
+
+# Given a list of schemes, print to the terminal the output of running
+# the EquitablePartitions algorithm on each scheme
+# schemesName is the name of the prefix for each variable containing
+# the list of good partitions.
+PrintPartitionsSchemeListFast := function(schemes, schemesName)
+	LogPartitionsSchemeListFast("*stdout*", schemes, schemesName);
 end;

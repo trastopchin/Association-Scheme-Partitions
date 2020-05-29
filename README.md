@@ -8,6 +8,9 @@ This project uses GAP to compute equitable partitions of association schemes. Th
 
 This project is comprised of the code that we wrote and the paper we wrote about the project. All of the code that we wrote is in the [equitable_partitions.gap](https://github.com/trastopchin/Association-Scheme-Partitions/blob/master/equitable_partitions.gap) file, where we wrote helper methods and algorithms to compute and log equitable partitions of association schemes. The [paper](https://github.com/trastopchin/Association-Scheme-Partitions/blob/master/AlgGraphTheoryGoodPartitions.pdf) we wrote gives some mathematical background on association schemes and equitable partitions, details our programming conventions, documents our methods, and explains our algorithms.
 
+**Important note:** When we ran our code on schemes of order greater than or equal to 12, the hash table implementation we relied ran into storage errors. Specifically,
+"Panic: Gasman found a bogus header." Theoretically, the EquitablePartitionsFast method should be faster than the EquitablePartitions method; however, in order to use it on larger schemes one would need to use a different hash table implementation. We have print methods that use both versions of the function.
+
 ## How to use
 
 To use this project, you must first install the latest version of [GAP](https://www.gap-system.org/). Once you clone this repository, all you need to do is start a GAP session in that directory and read in the file with the command `Read("equitable_partitions.gap");` Then, you have access to each of the methods and algorithms that we have written. For more extensive documentation and explanation about each of the algorithms (other than the in-line documentation), consult the methods section of the [paper](https://github.com/trastopchin/Association-Scheme-Partitions/blob/master/AlgGraphTheoryGoodPartitions.pdf) we wrote about this project.
@@ -16,7 +19,7 @@ To use this project, you must first install the latest version of [GAP](https://
 
 * The methods written (IsIsomorphic, IsEquitablePartition, EquitablePartitions and EquitablePartitionsFast) all rely on exhaustive searches.
 
-* EquitablePartitionsFast is implemented using a hash table in an attempt to speed it up and not rely on the exhaustive IsIsomorphic and IsEquitablePartition as much.
+* EquitablePartitionsFast is implemented using a hash table in an attempt to speed it up and not rely on the exhaustive IsIsomorphic and IsEquitablePartition as much. (See above important notice.)
 
 * More details can be found in the paper linked above.
 
